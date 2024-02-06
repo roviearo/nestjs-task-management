@@ -1,23 +1,33 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { TaskStatus } from "./task-status.enum";
-import { User } from "./../auth/user.entity";
+import { UserEntity } from "./../auth/user.entity";
 import { Exclude } from "class-transformer";
+import { Task } from "@prisma/client";
+import { ApiProperty } from "@nestjs/swagger";
 
-@Entity()
-export class Task {
-  @PrimaryGeneratedColumn("uuid")
+export class TaskEntity implements Task {
+  @ApiProperty()
   id: string;
 
-  @Column()
+  @ApiProperty()
   title: string;
 
-  @Column()
+  @ApiProperty()
   description: string;
 
-  @Column()
+  @ApiProperty()
   status: TaskStatus;
 
-  @ManyToOne((_type) => User, (user) => user.tasks, { eager: false })
-  @Exclude({ toPlainOnly: true })
-  user: User;
+  @ApiProperty({ required: false, nullable: true })
+  userId: string;
+
+  @ApiProperty({ required: false, type: UserEntity })
+  user: UserEntity;
+
+  constructor({ user, ...data }: Partial<TaskEntity>) {
+    Object.assign(this, data);
+
+    if (user) {
+      this.user = new UserEntity(user);
+    }
+  }
 }

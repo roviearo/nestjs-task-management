@@ -1,17 +1,19 @@
-import { Task } from "src/tasks/task.entity";
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { User } from "@prisma/client";
+import { ApiProperty } from "@nestjs/swagger";
+import { Exclude } from "class-transformer";
+import { TaskEntity } from "src/tasks/task.entity";
 
-@Entity()
-export class User {
-  @PrimaryGeneratedColumn("uuid")
+export class UserEntity implements User {
+  constructor(partial: Partial<TaskEntity>) {
+    Object.assign(this, partial);
+  }
+
+  @ApiProperty()
   id: string;
 
-  @Column({ unique: true })
+  @ApiProperty()
   username: string;
 
-  @Column()
+  @Exclude()
   password: string;
-
-  @OneToMany((_type) => Task, (task) => task.user, { eager: true })
-  tasks: Task[];
 }
